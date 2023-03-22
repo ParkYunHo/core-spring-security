@@ -79,6 +79,7 @@ class SecurityConfig {
             .authorizeHttpRequests()
             .requestMatchers("/").permitAll()
             .requestMatchers("/h2/**").permitAll()
+            .requestMatchers("/users").permitAll()
             .requestMatchers("/mypage").hasRole("USER")
             .requestMatchers("/messages").hasRole("MANAGER")
             .requestMatchers("/config").hasRole("ADMIN")
