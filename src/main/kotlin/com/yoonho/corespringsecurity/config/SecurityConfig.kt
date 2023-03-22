@@ -1,9 +1,12 @@
 package com.yoonho.corespringsecurity.config
 
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -47,17 +50,22 @@ class SecurityConfig {
         val manager = User
             .withUsername("manager")
             .password(password)
-            .roles("MANAGER")
+            .roles("MANAGER", "USER")
             .build()
 
         val admin = User
             .withUsername("admin")
             .password(password)
-            .roles("ADMIN")
+            .roles("ADMIN", "USER", "MANAGER")
             .build()
 
         return InMemoryUserDetailsManager(user, manager, admin)
     }
+
+    @Bean
+    fun webSecurityCustomizer(): WebSecurityCustomizer =
+        WebSecurityCustomizer { it.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations()) }
+
 
     @Bean
     fun configure(http: HttpSecurity): SecurityFilterChain {
