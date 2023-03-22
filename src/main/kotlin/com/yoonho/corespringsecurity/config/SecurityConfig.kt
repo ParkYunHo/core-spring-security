@@ -12,6 +12,7 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter
 
 /**
  * @author yoonho
@@ -64,8 +65,12 @@ class SecurityConfig {
 
     @Bean
     fun webSecurityCustomizer(): WebSecurityCustomizer =
-        WebSecurityCustomizer { it.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations()) }
-
+        WebSecurityCustomizer {
+            it
+                .ignoring()
+                .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
+                .requestMatchers("/h2/**")
+        }
 
     @Bean
     fun configure(http: HttpSecurity): SecurityFilterChain {
@@ -73,13 +78,21 @@ class SecurityConfig {
         http
             .authorizeHttpRequests()
             .requestMatchers("/").permitAll()
+            .requestMatchers("/h2/**").permitAll()
             .requestMatchers("/mypage").hasRole("USER")
             .requestMatchers("/messages").hasRole("MANAGER")
             .requestMatchers("/config").hasRole("ADMIN")
             .anyRequest().authenticated()
 
         http
+            .csrf().disable()
+
+        http
             .formLogin()
+
+        http
+            .headers()
+            .addHeaderWriter(XFrameOptionsHeaderWriter(XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN))
 
         return http.build()
     }
