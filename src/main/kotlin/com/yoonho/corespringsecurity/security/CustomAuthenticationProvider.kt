@@ -27,7 +27,7 @@ class CustomAuthenticationProvider(
 
         // username 검증
         val accountContext = userDetailsService.loadUserByUsername(username!!) as AccountContext
-        log.info(" >>> [authenticate] AccountContext - Account: ${accountContext.account()}, authorities: ${accountContext.authorities}")
+//        log.info(" >>> [authenticate] AccountContext - Account: ${accountContext.account()}, authorities: ${accountContext.authorities}")
 
         // password 검증
         if(!passwordEncoder.matches(password, accountContext.password)) {

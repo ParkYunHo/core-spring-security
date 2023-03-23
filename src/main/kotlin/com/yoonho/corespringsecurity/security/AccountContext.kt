@@ -13,5 +13,7 @@ class AccountContext constructor(
     authorities: MutableCollection<out GrantedAuthority>
 ): User(account.username, account.password, authorities) {
 
-    fun account(): Account = this.account()
+    private val myAccount: Account = account
+
+    fun account(): Account = myAccount
 }

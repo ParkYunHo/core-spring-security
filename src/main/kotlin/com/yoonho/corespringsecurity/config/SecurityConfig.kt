@@ -78,17 +78,21 @@ class SecurityConfig {
             .authorizeHttpRequests()
             .requestMatchers("/").permitAll()
             .requestMatchers("/h2/**").permitAll()
-            .requestMatchers("/users").permitAll()
+            .requestMatchers("/users", "user/login/**").permitAll()
             .requestMatchers("/mypage").hasRole("USER")
             .requestMatchers("/messages").hasRole("MANAGER")
             .requestMatchers("/config").hasRole("ADMIN")
             .anyRequest().authenticated()
 
-        http
-            .csrf().disable()
+//        http
+//            .csrf().disable()
 
         http
             .formLogin()
+            .loginPage("/login")
+            .loginProcessingUrl("/login_proc")
+            .defaultSuccessUrl("/")
+            .permitAll()
 
         http
             .headers()
