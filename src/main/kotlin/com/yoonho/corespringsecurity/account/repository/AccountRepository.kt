@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository
  * @author yoonho
  * @since 2023.03.22
  */
-interface AccountRepository: JpaRepository<Account, Long>
+interface AccountRepository: JpaRepository<Account, Long> {
+    fun findByUsername(username: String): Account?
+}
