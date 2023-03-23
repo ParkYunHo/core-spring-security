@@ -11,4 +11,7 @@ import org.springframework.security.core.userdetails.User
 class AccountContext constructor(
     account: Account,
     authorities: MutableCollection<out GrantedAuthority>
-): User(account.username, account.password, authorities)
+): User(account.username, account.password, authorities) {
+
+    fun account(): Account = this.account()
+}
