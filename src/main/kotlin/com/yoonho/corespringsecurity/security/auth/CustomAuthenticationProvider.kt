@@ -1,8 +1,10 @@
-package com.yoonho.corespringsecurity.security
+package com.yoonho.corespringsecurity.security.auth
 
+import com.yoonho.corespringsecurity.security.details.FormWebAuthenticationDetails
 import org.slf4j.LoggerFactory
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.authentication.InsufficientAuthenticationException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -27,11 +29,17 @@ class CustomAuthenticationProvider(
 
         // username 검증
         val accountContext = userDetailsService.loadUserByUsername(username!!) as AccountContext
-//        log.info(" >>> [authenticate] AccountContext - Account: ${accountContext.account()}, authorities: ${accountContext.authorities}")
 
         // password 검증
         if(!passwordEncoder.matches(password, accountContext.password)) {
             throw BadCredentialsException("BadCredentialsException")
+        }
+
+        // Details의 secretKey(속성) 체크 (테스트용도)
+        val details = authentication.details as FormWebAuthenticationDetails
+        val secretKey = details.getSecretKey()
+        if(secretKey == null || secretKey != "secret") {
+            throw InsufficientAuthenticationException("InsufficientAuthenticationException")
         }
 
         return UsernamePasswordAuthenticationToken(accountContext.account(), null, accountContext.authorities)

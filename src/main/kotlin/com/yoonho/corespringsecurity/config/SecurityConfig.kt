@@ -1,5 +1,6 @@
 package com.yoonho.corespringsecurity.config
 
+import com.yoonho.corespringsecurity.security.details.FormAuthenticationDetailsSource
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -17,7 +18,9 @@ import org.springframework.security.web.header.writers.frameoptions.XFrameOption
  */
 @EnableWebSecurity
 @Configuration
-class SecurityConfig {
+class SecurityConfig(
+    private val authenticationDetailsSource: FormAuthenticationDetailsSource
+) {
 
     /**
      * Custom PasswordEncoder 구현
@@ -84,14 +87,12 @@ class SecurityConfig {
             .requestMatchers("/config").hasRole("ADMIN")
             .anyRequest().authenticated()
 
-//        http
-//            .csrf().disable()
-
         http
             .formLogin()
             .loginPage("/login")
             .loginProcessingUrl("/login_proc")
             .defaultSuccessUrl("/")
+            .authenticationDetailsSource(authenticationDetailsSource)
             .permitAll()
 
         http

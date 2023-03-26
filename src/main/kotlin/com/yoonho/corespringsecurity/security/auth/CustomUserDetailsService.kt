@@ -1,4 +1,4 @@
-package com.yoonho.corespringsecurity.security
+package com.yoonho.corespringsecurity.security.auth
 
 import com.yoonho.corespringsecurity.account.repository.AccountRepository
 import org.slf4j.LoggerFactory

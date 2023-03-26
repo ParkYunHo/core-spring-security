@@ -1,4 +1,4 @@
-package com.yoonho.corespringsecurity.security
+package com.yoonho.corespringsecurity.security.auth
 
 import com.yoonho.corespringsecurity.account.domain.Account
 import org.springframework.security.core.GrantedAuthority
@@ -15,5 +15,5 @@ class AccountContext constructor(
 
     private val myAccount: Account = account
 
-    fun account(): Account = myAccount
+    fun account(): Account = this.myAccount
 }
