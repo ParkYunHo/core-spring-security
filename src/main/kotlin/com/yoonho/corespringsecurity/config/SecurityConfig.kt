@@ -1,7 +1,9 @@
 package com.yoonho.corespringsecurity.config
 
 import com.yoonho.corespringsecurity.security.details.FormAuthenticationDetailsSource
+import com.yoonho.corespringsecurity.security.handler.CustomAuthenticationFailureHandler
 import com.yoonho.corespringsecurity.security.handler.CustomAuthenticationSuccessHandler
+import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -21,18 +23,10 @@ import org.springframework.security.web.header.writers.frameoptions.XFrameOption
 @Configuration
 class SecurityConfig(
     private val authenticationDetailsSource: FormAuthenticationDetailsSource,
-    private val customAuthenticationSuccessHandler: CustomAuthenticationSuccessHandler
+    private val customAuthenticationSuccessHandler: CustomAuthenticationSuccessHandler,
+    private val customAuthenticationFailureHandler: CustomAuthenticationFailureHandler
 ) {
-
-    /**
-     * Custom PasswordEncoder 구현
-     *
-     * @author yoonho
-     * @since 2023.03.21
-     */
-    @Bean
-    fun passwordEncoder(): PasswordEncoder =
-        PasswordEncoderFactories.createDelegatingPasswordEncoder()
+    private val log = LoggerFactory.getLogger(this::class.java)
 
 //    /**
 //     * 사용자 계정 설정 (수동설정)
@@ -65,6 +59,16 @@ class SecurityConfig(
 //        return InMemoryUserDetailsManager(user, manager, admin)
 //    }
 
+    /**
+     * Custom PasswordEncoder 구현
+     *
+     * @author yoonho
+     * @since 2023.03.21
+     */
+    @Bean
+    fun passwordEncoder(): PasswordEncoder =
+        PasswordEncoderFactories.createDelegatingPasswordEncoder()
+
     @Bean
     fun webSecurityCustomizer(): WebSecurityCustomizer =
         WebSecurityCustomizer {
@@ -81,9 +85,8 @@ class SecurityConfig(
 
         http
             .authorizeHttpRequests()
-            .requestMatchers("/").permitAll()
+            .requestMatchers("/", "/users", "user/login/**", "/login*").permitAll()
             .requestMatchers("/h2/**").permitAll()
-            .requestMatchers("/users", "user/login/**").permitAll()
             .requestMatchers("/mypage").hasRole("USER")
             .requestMatchers("/messages").hasRole("MANAGER")
             .requestMatchers("/config").hasRole("ADMIN")
@@ -96,6 +99,7 @@ class SecurityConfig(
             .defaultSuccessUrl("/")
             .authenticationDetailsSource(authenticationDetailsSource)
             .successHandler(customAuthenticationSuccessHandler)
+            .failureHandler(customAuthenticationFailureHandler)
             .permitAll()
 
         http
