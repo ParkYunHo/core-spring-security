@@ -8,6 +8,7 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
 import org.springframework.stereotype.Component
+import org.springframework.web.util.UriComponentsBuilder
 
 /**
  * @author yoonho
@@ -24,8 +25,13 @@ class CustomAuthenticationFailureHandler: SimpleUrlAuthenticationFailureHandler(
             else -> "Invalid Username or Password"
         }
 
-        setDefaultFailureUrl("/login?error=true&exception=${exception?.let { errorMsg } ?: ""}")
- 
+        val url = UriComponentsBuilder.newInstance()
+                    .path("/login")
+                    .queryParam("error", "true")
+                    .queryParam("exception", exception?.let { errorMsg } ?: "")
+                    .build().toUriString()
+        setDefaultFailureUrl(url)
+
         super.onAuthenticationFailure(request, response, exception)
     }
 }

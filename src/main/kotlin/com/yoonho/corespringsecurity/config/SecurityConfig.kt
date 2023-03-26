@@ -1,6 +1,7 @@
 package com.yoonho.corespringsecurity.config
 
 import com.yoonho.corespringsecurity.security.details.FormAuthenticationDetailsSource
+import com.yoonho.corespringsecurity.security.handler.CustomAccessDeniedHandler
 import com.yoonho.corespringsecurity.security.handler.CustomAuthenticationFailureHandler
 import com.yoonho.corespringsecurity.security.handler.CustomAuthenticationSuccessHandler
 import org.slf4j.LoggerFactory
@@ -24,7 +25,8 @@ import org.springframework.security.web.header.writers.frameoptions.XFrameOption
 class SecurityConfig(
     private val authenticationDetailsSource: FormAuthenticationDetailsSource,
     private val customAuthenticationSuccessHandler: CustomAuthenticationSuccessHandler,
-    private val customAuthenticationFailureHandler: CustomAuthenticationFailureHandler
+    private val customAuthenticationFailureHandler: CustomAuthenticationFailureHandler,
+    private val customAccessDeniedHandler: CustomAccessDeniedHandler
 ) {
     private val log = LoggerFactory.getLogger(this::class.java)
 
@@ -69,6 +71,14 @@ class SecurityConfig(
     fun passwordEncoder(): PasswordEncoder =
         PasswordEncoderFactories.createDelegatingPasswordEncoder()
 
+    /**
+     * WebSecurity 설정
+     * <p>
+     *     - static resource에 대한 인증 Bypass 처리
+     *
+     * @author yoonho
+     * @since 2023.03.26
+     */
     @Bean
     fun webSecurityCustomizer(): WebSecurityCustomizer =
         WebSecurityCustomizer {
@@ -103,10 +113,18 @@ class SecurityConfig(
             .permitAll()
 
         http
+            .exceptionHandling()
+            .accessDeniedHandler(this.setAccessDeniedHandler())
+
+        http
             .headers()
             .addHeaderWriter(XFrameOptionsHeaderWriter(XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN))
 
         return http.build()
     }
 
+    private fun setAccessDeniedHandler(): CustomAccessDeniedHandler {
+        customAccessDeniedHandler.setErrorPage("/denied")
+        return customAccessDeniedHandler
+    }
 }
