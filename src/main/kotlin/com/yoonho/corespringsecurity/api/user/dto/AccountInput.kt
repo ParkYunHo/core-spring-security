@@ -5,9 +5,9 @@ package com.yoonho.corespringsecurity.api.user.dto
  * @since 2023.03.22
  */
 data class AccountInput(
-    val username: String,
-    val password: String,
-    val email: String,
-    val age: String,
-    val role: String
+    val username: String? = "",
+    val password: String? = "",
+    val email: String? = "",
+    val age: Int? = 0,
+    val role: String? = ""
 )

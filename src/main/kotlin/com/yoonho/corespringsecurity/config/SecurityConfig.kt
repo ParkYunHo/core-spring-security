@@ -1,6 +1,7 @@
 package com.yoonho.corespringsecurity.config
 
 import com.yoonho.corespringsecurity.security.details.FormAuthenticationDetailsSource
+import com.yoonho.corespringsecurity.security.filter.AjaxLoginProcessingFilter
 import com.yoonho.corespringsecurity.security.handler.CustomAccessDeniedHandler
 import com.yoonho.corespringsecurity.security.handler.CustomAuthenticationFailureHandler
 import com.yoonho.corespringsecurity.security.handler.CustomAuthenticationSuccessHandler
@@ -8,12 +9,14 @@ import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter
 
 /**
@@ -26,7 +29,7 @@ class SecurityConfig(
     private val authenticationDetailsSource: FormAuthenticationDetailsSource,
     private val customAuthenticationSuccessHandler: CustomAuthenticationSuccessHandler,
     private val customAuthenticationFailureHandler: CustomAuthenticationFailureHandler,
-    private val customAccessDeniedHandler: CustomAccessDeniedHandler
+    private val customAccessDeniedHandler: CustomAccessDeniedHandler,
 ) {
     private val log = LoggerFactory.getLogger(this::class.java)
 
@@ -116,9 +119,19 @@ class SecurityConfig(
             .exceptionHandling()
             .accessDeniedHandler(this.setAccessDeniedHandler())
 
+
+        val manager = http.getSharedObject(AuthenticationManager::class.java)
+        val filter = AjaxLoginProcessingFilter()
+        filter.setAuthenticationManager(manager)
+        http
+            .addFilterBefore(filter, UsernamePasswordAuthenticationFilter::class.java)
+
         http
             .headers()
             .addHeaderWriter(XFrameOptionsHeaderWriter(XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN))
+
+        http
+            .csrf().disable()
 
         return http.build()
     }
